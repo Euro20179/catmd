@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#sources the config file
+configFile=~/.config/catmd/conf.sh
+[ -e "$configFile" ] && . "$configFile"
+
 printhelp () {
     printf "Usage: \033[1mcatmd [OPTIONS...] <file>\033[0m\n"
     printf "	-k                      Removes html markup\n"
@@ -17,44 +21,141 @@ while getopts "kh" opt; do
 done
 shift $((OPTIND-1))
 
-
+#gets the contents of the file/stdin
 file="$1"
 data="$(cat $file)"
 
 #remove html
 if [ $removeHtml -eq 1 ]; then
-    data="$(echo "$data" | perl -pe 's|<[^>]*?>||g')"
+    data="$(printf "$data" | perl -pe 's|<[^>]*?>||g')"
 fi
 
-cols=$(tput cols)
-i=0
-while [ $i -lt $cols ]; do
-    hr="$hr-"
-    i=$((i + 1))
-done
+isFunction () {
+    if type $1 > /dev/null 2>&1; then
+	return 0
+    else
+	return 1
+    fi
+}
+
+#each function below, is a function that gets called when replacing that attribute
+    #each function must print the final result of what will replace the original text
+
+#for --- or
+isFunction hr || hr () {
+    cols=$(tput cols)
+    i=0
+    while [ $i -lt $cols ]; do
+	_hr="$_hr-"
+	i=$((i + 1))
+    done
+    printf "%s" "\033[9m$_hr\033[29m"
+}
+
+#for * [ ] text
+isFunction emptyCheckBox || emptyCheckBox () {
+#\1 is the whitespace before the *
+#\2 is the text after the checkbox
+    printf "%s" '\1 \033[31m\[ \]\033[39m \2'
+}
+
+#for * [x] text
+isFunction checkedCheckBox || checkedCheckBox () {
+#\1 is the whitespace before the *
+#\2 is the text after the checkbox
+    printf "%s" '\1 \033[32m\[x\]\033[39m \2'
+}
+
+#for 
+#```lang 
+#it colors everything after this and before the end of the block
+isFunction blockCodeStart || blockCodeStart () {
+#\1 is the lang
+    printf "%s" '\033[32m\1\033[9;39m\n------------------------------------\033[29m\033[2m'
+}
+
+#for the end of the blocked code
+isFunction blockCodeEnd || blockCodeEnd () {
+    printf "%s" '\033[29m\033[9m------------------------------------\033[29m'
+}
+
+#for `code`
+isFunction inlineCode || inlineCode () {
+#\1 is the text inside of ``
+    printf "%s" '\033[2m\1\033[29m'
+}
+
+#for bulleted list
+isFunction unorderedList || unorderedList () {
+#\1 is the whitespace before the bullet
+#\2 is the bullet used (*/-/+)
+#\3 is the text
+    printf "%s" '\1* \3'
+}
+
+#for **bolded** text
+isFunction bold || bold () {
+#\1 is the type used (**/__)
+#\2 is the text being bolded
+    printf "%s" '\033[1m\2\033[39m'
+}
+
+#for *italic* text
+isFunction italic || italic () {
+#\1 is the type used (*/_)
+#\2 is the texed being italisized
+    printf "%s" '\033[3m\2\033[29m'
+}
+
+#for #{1,6} headers
+isFunction headers || headers () {
+#\1 the # used at the start
+#\2 the text
+    printf "%s" '\033[2;32m\1\033[29;39m \033[4m\033[1m\2\033[0m'
+}
+
+#for [text](link)
+isFunction markdownLinks || markdownLinks () {
+#\1 the text inside of []
+#\2 the text inside of ()
+    printf "%s" '\033[1m\1\033[29m (\033[34m\2\033[29m)'
+}
+
+#for > text
+isFunction blockQuotes || blockQuotes () {
+#\1 the whitespace before >
+#\2 the text
+    printf "%s" '\1\|  \2'
+}
+
+#used for just plain links (https://www.link.com)
+isFunction links || links () {
+#\1 the link
+    printf "%s" '\033[34m\1\033[39m'
+}
 
 #checklists
-data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|\1 \\033[31m\[ \]\\033[39m \2|gi')"
-data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|\1 \\033[32m\[x\]\\033[39m \2|gi')"
+data="$(printf "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|'"$(emptyCheckBox)"'|gi')"
+data="$(printf "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|'"$(checkedCheckBox)"'|gi')"
 #code
-data="$(echo "$data" | perl -pe 's|(?<!\\)```(.+)|\\033[32m\1:\\033[9;39m\n------------------------------------\\033[29m\\033[2m|g')"
-data="$(echo "$data" | perl -pe 's|(?<!\\)```|\\033[29m\\033[9m------------------------------------\\033[29m|g')"
-data="$(echo "$data" | perl -pe 's|(?<!\\)`(.*?)`|\\033[2m\1\\033[29m|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)```(.+)|'"$(blockCodeStart)"'|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)```|'"$(blockCodeEnd)"'|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)`(.*?)`|'"$(inlineCode)"'|g')"
 #bullet points
-data="$(echo "$data" | perl -pe 's|(^\s*)(?<!\\)(\*\|\+\|-) (.*)|\1* \3|g')"
+data="$(printf "$data" | perl -pe 's|(^\s*)(?<!\\)(\*\|\+\|-) (.*)|'"$(unorderedList)"'|g')"
 #bold
-data="$(echo "$data" | perl -pe 's|(?<!\\)(\*\|_){2}(.+?)\1{2}|\\033[1m\2\\033[39m|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)(\*\|_){2}(.+?)\1{2}|'"$(bold)"'|g')"
 #italic
-data="$(echo "$data" | perl -pe 's|(?<!\\)(\*\|_)([^*\n]+)\1|\\033[3m\2\\033[29m|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)(\*\|_)([^*\n]+)\1|'"$(italic)"'|g')"
 #headers
-data="$(echo "$data" | perl -pe 's|(?<!\\)^(#+) +(.*)|\\033[2;32m\1\\033[29;39m \\033[4m\\033[1m\2\\033[0m|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)^(#+) +(.*)|'"$(headers)"'|g')"
 #links
-data="$(echo "$data" | perl -pe 's|(?<!\\)\[(.+?)\]\((.+?)\)|\\033[1m\1\\033[29m (\\033[34m\2\\033[29m)|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)\[(.+?)\]\((.+?)\)|'"$(markdownLinks)"'|g')"
 #block quotes
-data="$(echo "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|\1\|  \2|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|g')"
 #hr
-data="$(echo "$data" | perl -pe 's|(?<!\\)^-{3,}$|\\033[9m'$hr'\\033[29m|g')"
+data="$(printf "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
 #links
-data="$(echo "$data" | perl -pe 's|(https?://[^ ]+)|\\033[34m\1\\033[39m|g')"
+data="$(printf "$data" | perl -pe 's|([^ ]+://[^ ]+)|'"$(links)"'|g')"
 
-echo "$data\n"
+printf "%s\n" "$data"
