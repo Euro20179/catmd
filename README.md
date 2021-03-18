@@ -7,7 +7,7 @@ try it on this README and see how it works
 
 # usage
 
-`catmd [-k] <file>`
+`catmd [file]`
 
 # installation
 

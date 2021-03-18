@@ -5,8 +5,8 @@ configFile=~/.config/catmd/conf.sh
 [ -e "$configFile" ] && . "$configFile"
 
 printhelp () {
-    printf "Usage: \033[1mcatmd [OPTIONS...] <file>\033[0m\n"
-    printf "	-k                      Removes html markup\n"
+    printf "Usage: \033[1mcatmd [file]\033[0m\n"
+    printf "by default file is equal to README.md\n"
 }
 
 while getopts "h" opt; do
@@ -20,7 +20,11 @@ shift $((OPTIND-1))
 
 #gets the contents of the file/stdin
 file="$1"
-data="$(cat $file)"
+if [ -n "$file" ]; then
+    data="$(cat $file)"
+else
+    data="$(cat 'README.md')"
+fi
 
 isFunction () {
     if type $1 > /dev/null 2>&1; then
