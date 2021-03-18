@@ -108,7 +108,7 @@ isFunction italic || italic () {
 isFunction headers || headers () {
 #\1 the # used at the start
 #\2 the text
-    printf "%s" '\033[1;32m\1\033[29;39m \033[4m\033[1m\2\033[0m'
+    printf "%s" '\033[1;2;32m\1\033[0;39m \033[4m\033[1m\2\033[0m'
 }
 
 #for [text](link)
