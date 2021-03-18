@@ -5,15 +5,18 @@ configFile=~/.config/catmd/conf.sh
 [ -e "$configFile" ] && . "$configFile"
 
 printhelp () {
-    printf "Usage: \033[1mcatmd [file]\033[0m\n"
+    printf "Usage: \033[1mcatmd [-n] [file]\033[0m\n"
     printf "by default file is equal to README.md\n"
+    printf "       -n           number each line\n"
 }
 
-while getopts "h" opt; do
+readCmd='cat'
+while getopts "nh" opt; do
     case "$opt" in
 	h)
 	    printhelp;
 	    exit ;;
+	n) readCmd="$readCmd -n"
     esac
 done
 shift $((OPTIND-1))
@@ -21,9 +24,9 @@ shift $((OPTIND-1))
 #gets the contents of the file/stdin
 file="$1"
 if [ -n "$file" ]; then
-    data="$(cat $file)"
+    data="$(eval "$readCmd" $file)"
 else
-    data="$(cat 'README.md')"
+    data="$(eval "$readCmd" 'README.md')"
 fi
 
 isFunction () {
@@ -45,7 +48,7 @@ isFunction hr || hr () {
 	_hr="$_hr-"
 	i=$((i + 1))
     done
-    printf "%s" "\033[9m$_hr\033[29m"
+    printf "%s" "\033[9m$_hr\033[0m"
 }
 
 #for * [ ] text
@@ -67,12 +70,12 @@ isFunction checkedCheckBox || checkedCheckBox () {
 #it colors everything after this and before the end of the block
 isFunction blockCodeStart || blockCodeStart () {
 #\1 is the lang
-    printf "%s" '\033[32m\1\033[9;39m\n------------------------------------\033[29m\033[2m'
+    printf "%s" '\033[32m\1\033[9;39m\n------------------------------------\033[0m\033[2m'
 }
 
 #for the end of the blocked code
 isFunction blockCodeEnd || blockCodeEnd () {
-    printf "%s" '\033[29m\033[9m------------------------------------\033[29m'
+    printf "%s" '\033[0m\033[9m------------------------------------\033[0m'
 }
 
 #for `code`
@@ -100,7 +103,7 @@ isFunction bold || bold () {
 isFunction italic || italic () {
 #\1 is the type used (*/_)
 #\2 is the texed being italisized
-    printf "%s" '\033[3m\2\033[29m'
+    printf "%s" '\033[3m\2\033[0m'
 }
 
 #for #{1,6} headers
@@ -114,14 +117,14 @@ isFunction headers || headers () {
 isFunction markdownLinks || markdownLinks () {
 #\1 the text inside of []
 #\2 the text inside of ()
-    printf "%s" '\033[1m\1\033[29m (\033[34m\2\033[29;39m)'
+    printf "%s" '\033[1m\1\033[0m (\033[34m\2\033[29;39m)'
 }
 
 #for > text
 isFunction blockQuotes || blockQuotes () {
 #\1 the whitespace before >
 #\2 the text
-    printf "%s" '\1\|\033[2;3m\2\033[29m'
+    printf "%s" '\1\|\033[2;3m\2\033[0m'
 }
 
 #used for just plain links (https://www.link.com)
@@ -131,7 +134,7 @@ isFunction links || links () {
 }
 
 isFunction strikethrough || strikethrough () {
-    printf "%s" '\033[9m\1\033[29m'
+    printf "%s" '\033[9m\1\033[0m'
 }
 
 #checklists
