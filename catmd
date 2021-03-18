@@ -2,14 +2,14 @@
 
 printhelp () {
     printf "Usage: \033[1mcatmd [OPTIONS...] <file>\033[0m\n"
-    printf "	-k                      Keeps html markup\n"
+    printf "	-k                      Removes html markup\n"
 }
 
-removeHtml=1
+removeHtml=0
 while getopts "kh" opt; do
     case "$opt" in
 	k)
-	    removeHtml=0 ;;
+	    removeHtml=1 ;;
 	h)
 	    printhelp;
 	    exit ;;
@@ -30,7 +30,7 @@ fi
 data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|\1 \\033[31m\[ \]\\033[0m \2|gi')"
 data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|\1 \\033[32m\[x\]\\033[0m \2|gi')"
 #code
-data="$(echo "$data" | perl -pe 's|(?<!\\)```(.+)|\\033[32m\1:\\033[0m\n------------------------------------|g')"
+data="$(echo "$data" | perl -pe 's|(?<!\\)```(.+)|\\033[32m\1:\\033[0m\n------------------------------------\\033[2m|g')"
 data="$(echo "$data" | perl -pe 's|(?<!\\)```|\\033[0m------------------------------------|g')"
 data="$(echo "$data" | perl -pe 's|(?<!\\)`(.*?)`|\\033[2m\1\\033[0m|g')"
 #bullet points
