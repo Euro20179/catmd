@@ -22,5 +22,3 @@ sudo cp catmd /usr/local/bin
 
 # dependancies
 * perl
-
-[test](https://www.test.com)
