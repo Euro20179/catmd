@@ -4,6 +4,8 @@
 configFile=~/.config/catmd/conf.sh
 [ -e "$configFile" ] && . "$configFile"
 
+pager="${pager-more}"
+
 printhelp () {
     printf "Usage: \033[1mcatmd [-n] [file]\033[0m\n"
     printf "by default file is equal to README.md\n"
@@ -165,4 +167,4 @@ data="$(printf "%s" "$data" | perl -pe 's|([A-z]+://[^'\''" ]+)|'"$(links)"'|g')
 #strikethrough
 data="$(printf "%s" "$data" | perl -pe 's|~~(.*?)~~|'"$(strikethrough)"'|g')"
 
-printf "%s\n" "$data"
+printf "%s\n" "$data" | $pager
