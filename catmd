@@ -4,21 +4,22 @@
 configFile=~/.config/catmd/conf.sh
 [ -e "$configFile" ] && . "$configFile"
 
-pager="${pager-more}"
+#essentially like $MANPAGER the text will be piped into here
+pager="${pager-}"
+#the command to get the text from the file, eg: cat, tac
+    #tac will likely break this program
+readCmd="${readCmd-cat}"
 
 printhelp () {
     printf "Usage: \033[1mcatmd [-n] [file]\033[0m\n"
     printf "by default file is equal to README.md\n"
-    printf "       -n           number each line\n"
 }
 
-readCmd='cat'
-while getopts "nh" opt; do
+while getopts "h" opt; do
     case "$opt" in
 	h)
 	    printhelp;
 	    exit ;;
-	n) readCmd="$readCmd -n"
     esac
 done
 shift $((OPTIND-1))
@@ -167,4 +168,8 @@ data="$(printf "%s" "$data" | perl -pe 's|([A-z]+://[^'\''" ]+)|'"$(links)"'|g')
 #strikethrough
 data="$(printf "%s" "$data" | perl -pe 's|~~(.*?)~~|'"$(strikethrough)"'|g')"
 
-printf "%s\n" "$data" | $pager
+if [ -n "$pager" ]; then
+    printf "%s\n" "$data" | $pager
+else
+    printf "%s\n" "$data"
+fi
