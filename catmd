@@ -1,0 +1,53 @@
+#!/bin/sh
+
+printhelp () {
+    printf "Usage: \033[1mcatmd [OPTIONS...] <file>\033[0m\n"
+    printf "	-k                      Keeps html markup\n"
+}
+
+removeHtml=1
+while getopts "kh" opt; do
+    case "$opt" in
+	k)
+	    removeHtml=0 ;;
+	h)
+	    printhelp;
+	    exit ;;
+    esac
+done
+shift $((OPTIND-1))
+
+
+file="$1"
+data="$(cat $file)"
+
+#remove html
+if [ $removeHtml -eq 1 ]; then
+    data="$(echo "$data" | perl -pe 's|<[^>]*?>||g')"
+fi
+
+#checklists
+data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|\1 \\033[31m\[ \]\\033[0m \2|gi')"
+data="$(echo "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|\1 \\033[32m\[x\]\\033[0m \2|gi')"
+#code
+data="$(echo "$data" | perl -pe 's|(?<!\\)```(.+)|\\033[2;32m\1:\\033[0m\n------------------------------------\\033[2m|g')"
+data="$(echo "$data" | perl -pe 's|(?<!\\)```|\\033[0m------------------------------------|g')"
+data="$(echo "$data" | perl -pe 's|(?<!\\)`(.*?)`|\\033[2m\1\\033[0m|g')"
+#bullet points
+data="$(echo "$data" | perl -pe 's|(^\s*)(?<!\\)(\*\|\+\|-) (.*)|\1* \3|g')"
+#bold
+data="$(echo "$data" | perl -pe 's|(?<!\\)(\*\|_){2}(.+?)\1{2}|\\033[1m\2\\033[0m|g')"
+#italic
+data="$(echo "$data" | perl -pe 's|(?<!\\)(\*\|_)([^*\n]+)\1|\\033[3m\2\\033[0m|g')"
+#headers
+data="$(echo "$data" | perl -pe 's|(?<!\\)^(#+) +(.*)|\\033[2;32m\1\\033[0m \\033[4m\\033[1m\2\\033[00m|g')"
+#links
+data="$(echo "$data" | perl -pe 's|(?<!\\)\[(.+?)\]\((.+?)\)|\\033[1m\1\\033[00m (\\033[34m\2\\033[00m)|g')"
+#block quotes
+data="$(echo "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|\1\|  \2|g')"
+#hr
+data="$(echo "$data" | perl -pe 's|(?<!\\)^-{3,}$|------------------------------------|g')"
+#links
+data="$(echo "$data" | perl -pe 's|(https?://[^ ]+)|\\033[34m\1\\033[0m|g')"
+
+echo -e "$data\n"
