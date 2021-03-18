@@ -159,7 +159,7 @@ data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|
 #hr
 data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
 #links
-data="$(printf "%s" "$data" | perl -pe 's|([A-z]+://[^'\''" ]+)|'"$(links)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(A-Za-z]+://[^'\''" ]+)|'"$(links)"'|g')"
 #strikethrough
 data="$(printf "%s" "$data" | perl -pe 's|~~(.*?)~~|'"$(strikethrough)"'|g')"
 
