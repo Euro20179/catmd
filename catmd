@@ -9,11 +9,8 @@ printhelp () {
     printf "	-k                      Removes html markup\n"
 }
 
-removeHtml=0
-while getopts "kh" opt; do
+while getopts "h" opt; do
     case "$opt" in
-	k)
-	    removeHtml=1 ;;
 	h)
 	    printhelp;
 	    exit ;;
@@ -24,11 +21,6 @@ shift $((OPTIND-1))
 #gets the contents of the file/stdin
 file="$1"
 data="$(cat $file)"
-
-#remove html
-if [ $removeHtml -eq 1 ]; then
-    data="$(printf "$data" | perl -pe 's|<[^>]*?>||g')"
-fi
 
 isFunction () {
     if type $1 > /dev/null 2>&1; then
