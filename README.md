@@ -3,6 +3,8 @@ catmd is a POSIX script that will output the given md file to stdout and prettif
 
 try it on this README and see how it works
 
+---
+
 # usage
 
 `catmd [-k] <file>`
