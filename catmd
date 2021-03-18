@@ -133,7 +133,9 @@ isFunction links || links () {
     printf "%s" '\033[34m\1\033[39m'
 }
 
+#used for ~~strikethrough~~
 isFunction strikethrough || strikethrough () {
+#\1 is the text
     printf "%s" '\033[9m\1\033[0m'
 }
 
