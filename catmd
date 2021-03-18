@@ -74,7 +74,7 @@ isFunction blockCodeEnd || blockCodeEnd () {
 #for `code`
 isFunction inlineCode || inlineCode () {
 #\1 is the text inside of ``
-    printf "%s" '\033[2m\1\033[29m'
+    printf "%s" '\033[2m\1\033[0m'
 }
 
 #for bulleted list
@@ -110,7 +110,7 @@ isFunction headers || headers () {
 isFunction markdownLinks || markdownLinks () {
 #\1 the text inside of []
 #\2 the text inside of ()
-    printf "%s" '\033[1m\1\033[29m (\033[34m\2\033[29m)'
+    printf "%s" '\033[1m\1\033[29m (\033[34m\2\033[29;39m)'
 }
 
 #for > text
@@ -127,27 +127,27 @@ isFunction links || links () {
 }
 
 #checklists
-data="$(printf "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|'"$(emptyCheckBox)"'|gi')"
-data="$(printf "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|'"$(checkedCheckBox)"'|gi')"
+data="$(printf "%s" "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|'"$(emptyCheckBox)"'|gi')"
+data="$(printf "%s" "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|'"$(checkedCheckBox)"'|gi')"
 #code
-data="$(printf "$data" | perl -pe 's|(?<!\\)```(.+)|'"$(blockCodeStart)"'|g')"
-data="$(printf "$data" | perl -pe 's|(?<!\\)```|'"$(blockCodeEnd)"'|g')"
-data="$(printf "$data" | perl -pe 's|(?<!\\)`(.*?)`|'"$(inlineCode)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)```(.+)|'"$(blockCodeStart)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)```|'"$(blockCodeEnd)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)`(.*?)`|'"$(inlineCode)"'|g')"
 #bullet points
-data="$(printf "$data" | perl -pe 's|(^\s*)(?<!\\)(\*\|\+\|-) (.*)|'"$(unorderedList)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(^\s*)(?<!\\)(\*\|\+\|-) (.*)|'"$(unorderedList)"'|g')"
 #bold
-data="$(printf "$data" | perl -pe 's|(?<!\\)(\*\|_){2}(.+?)\1{2}|'"$(bold)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(\*\|_){2}(.+?)\1{2}|'"$(bold)"'|g')"
 #italic
-data="$(printf "$data" | perl -pe 's|(?<!\\)(\*\|_)([^*\n]+)\1|'"$(italic)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(\*\|_)([^*\n]+)\1|'"$(italic)"'|g')"
 #headers
-data="$(printf "$data" | perl -pe 's|(?<!\\)^(#+) +(.*)|'"$(headers)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)^(#+) +(.*)|'"$(headers)"'|g')"
 #links
-data="$(printf "$data" | perl -pe 's|(?<!\\)\[(.+?)\]\((.+?)\)|'"$(markdownLinks)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)\[(.+?)\]\((.+?)\)|'"$(markdownLinks)"'|g')"
 #block quotes
-data="$(printf "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|g')"
 #hr
-data="$(printf "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
 #links
-data="$(printf "$data" | perl -pe 's|([^ ]+://[^ ]+)|'"$(links)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|([^ ]+://[^ ]+)|'"$(links)"'|g')"
 
 printf "%s\n" "$data"
