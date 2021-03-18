@@ -126,6 +126,10 @@ isFunction links || links () {
     printf "%s" '\033[34m\1\033[39m'
 }
 
+isFunction strikethrough || strikethrough () {
+    printf "%s" '\033[9m\1\033[29m'
+}
+
 #checklists
 data="$(printf "%s" "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[ \] (.*)|'"$(emptyCheckBox)"'|gi')"
 data="$(printf "%s" "$data" | perl -pe 's|(^\s*)\* (?<!\\)\[x\] (.*)|'"$(checkedCheckBox)"'|gi')"
@@ -149,5 +153,7 @@ data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|
 data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
 #links
 data="$(printf "%s" "$data" | perl -pe 's|([A-z]+://[^'\''" ]+)|'"$(links)"'|g')"
+#strikethrough
+data="$(printf "%s" "$data" | perl -pe 's|~~(.*?)~~|'"$(strikethrough)"'|g')"
 
 printf "%s\n" "$data"
