@@ -9,6 +9,8 @@ try it on this README and see how it works
 
 `catmd [file]`
 
+**note**: options will be passed to `$readCmd` (`cat` by default), this is unintended and might break, however it is useful to know
+
 # installation
 
 ```sh

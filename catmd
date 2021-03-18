@@ -14,15 +14,10 @@ printhelp () {
     printf "Usage: \033[1mcatmd [-n] [file]\033[0m\n"
     printf "by default file is equal to README.md\n"
 }
-
-while getopts "h" opt; do
-    case "$opt" in
-	h)
-	    printhelp;
-	    exit ;;
-    esac
-done
-shift $((OPTIND-1))
+if [ "$1" =  '-h' ]; then
+    printhelp
+    exit
+fi
 
 #gets the contents of the file/stdin
 file="$1"
@@ -99,7 +94,7 @@ isFunction unorderedList || unorderedList () {
 isFunction bold || bold () {
 #\1 is the type used (**/__)
 #\2 is the text being bolded
-    printf "%s" '\033[1m\2\033[39m'
+    printf "%s" '\033[1m\2\033[0m'
 }
 
 #for *italic* text
