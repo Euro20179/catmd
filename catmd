@@ -103,7 +103,7 @@ isFunction italic || italic () {
 isFunction headers || headers () {
 #\1 the # used at the start
 #\2 the text
-    printf "%s" '\033[2;32m\1\033[29;39m \033[4m\033[1m\2\033[0m'
+    printf "%s" '\033[1;32m\1\033[29;39m \033[4m\033[1m\2\033[0m'
 }
 
 #for [text](link)
@@ -117,7 +117,7 @@ isFunction markdownLinks || markdownLinks () {
 isFunction blockQuotes || blockQuotes () {
 #\1 the whitespace before >
 #\2 the text
-    printf "%s" '\1\|  \2'
+    printf "%s" '\1\|\033[2;3m\2\033[29m'
 }
 
 #used for just plain links (https://www.link.com)
@@ -148,6 +148,6 @@ data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)(^\s*)>(.*)|'"$(blockQuotes)"'|
 #hr
 data="$(printf "%s" "$data" | perl -pe 's|(?<!\\)^-{3,}$|'"$(hr)"'|g')"
 #links
-data="$(printf "%s" "$data" | perl -pe 's|([^ ]+://[^ ]+)|'"$(links)"'|g')"
+data="$(printf "%s" "$data" | perl -pe 's|([A-z]+://[^'\''" ]+)|'"$(links)"'|g')"
 
 printf "%s\n" "$data"
