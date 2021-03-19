@@ -85,7 +85,7 @@ int main(int argc, const char *argv[])
     std::regex markdownLinkRe("\\[(.+?)\\]\\((.+?)\\)");
     std::regex blockQuoteRe("(^\\s*)>(.*)");
     std::regex hrRe("^-{3,}$");
-    std::regex linkRe("(A-Za-z]+)://([^'\" ]+)");
+    std::regex linkRe("([A-Za-z]+)://([^'\" ]+)");
 
     while(std::getline(file, line)){
         //code
@@ -93,11 +93,17 @@ int main(int argc, const char *argv[])
             inCodeBlock = !inCodeBlock;
             return inCodeBlock ? codeBlockStart(m[0], m[1]) : codeBlockEnd(m[0]);
         });
+	//regular links
+        line = std::regex_replace(line, linkRe, [](const std::smatch& m){
+            return link(m[0], m[1], m[2]);
+        });
+	//dont format if inside a code block
         if(inCodeBlock){
             line = codeBlockFormatting(line);
             fullData += line + "\n";
             continue;
         }
+	//inline code
         line = std::regex_replace(line, inlineCodeRe, [](const std::smatch& m){
             return inlineCode(m[0], m[1]);
         });
@@ -145,11 +151,7 @@ int main(int argc, const char *argv[])
         line = std::regex_replace(line, hrRe, [](const std::smatch& m){
             return hr(m[0]);
         });
-
-        line = std::regex_replace(line, linkRe, [](const std::smatch& m){
-            return link(m[0], m[1], m[2]);
-        });
-
+	
         //strikethrough
         line = std::regex_replace(line, std::regex("~~(.*)~~"), [](const std::smatch& m){
             return strikethrough(m[0], m[1]);
