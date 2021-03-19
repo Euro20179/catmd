@@ -56,13 +56,21 @@ std::string regex_replace(const std::string& s,
 
 } 
 //end stolen code
+bool StdinOpen() {
+  FILE* handle = popen("test -p /dev/stdin", "r");
+  return pclose(handle) == 0;
+}
 
 int main(int argc, const char *argv[])
 {
     const char* fileName = argv[1];
-    if(!fileName){
+    if(StdinOpen()){
+	fileName="/dev/stdin";
+    }
+    else if(!fileName){
 	fileName="README.md";
     }
+
     std::ifstream file (fileName);
     if(!file.is_open()){
 	std::cout << "\033[31mError: invalid file name\033[0m" << std::endl;
