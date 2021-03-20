@@ -87,14 +87,15 @@ int main(int argc, const char *argv[])
     std::regex inlineCodeRe("`(.*?)`");
     std::regex tabbedRe("^(\\s{4,})(.*)$");
     std::regex bulletPointRe("(^\\s*)(\\*|\\+|-) (.*)");
-    std::regex boldRe("(\\*|_){2}(.+?)\\1{2}");
-    std::regex italicRe("(\\*|_)([^*\n]+)\\1");
+    std::regex boldRe("(\\*{2}|_{2}|<(?:strong|b).*>)(.+?)(?:\\1{2}|</(?:strong|b)>)");
+    std::regex italicRe("(\\*|_|<(?:i|em).*>)([^*\n]+)(?:\\1|</(?:i|em)>)");
     std::regex headersRe("^(#+) +(.*)");
     std::regex markdownLinkRe("\\[(.+?)\\]\\((.+?)\\)");
     std::regex blockQuoteRe("(^\\s*)>(.*)");
-    std::regex hrRe("^-{3,}$");
+    std::regex hrRe("(?:^-{3,}$|<hr ?/?>)");
     std::regex linkRe("([A-Za-z]+)://([^'\" ]+)");
-
+    std::regex htmlRe("<([^ \\s]*)(.*)>([^]*?)</\\1>");
+    std::regex strikethroughRe("(?:~~|<(?:del|s).*?>)(.*)(?:~~|</(?:del|s)>)");
     while(std::getline(file, line)){
         //code
         line = std::regex_replace(line, codeBlockStartRe, [&](const std::smatch& m){
@@ -111,6 +112,7 @@ int main(int argc, const char *argv[])
             fullData += line + "\n";
             continue;
         }
+
 	//inline code
         line = std::regex_replace(line, inlineCodeRe, [](const std::smatch& m){
             return inlineCode(m[0], m[1]);
@@ -167,9 +169,14 @@ int main(int argc, const char *argv[])
         });
 	
         //strikethrough
-        line = std::regex_replace(line, std::regex("~~(.*)~~"), [](const std::smatch& m){
+        line = std::regex_replace(line, strikethroughRe, [](const std::smatch& m){
             return strikethrough(m[0], m[1]);
         });
+
+	//html
+	line = std::regex_replace(line, htmlRe, [](const std::smatch& m){
+	    return html(m[0], m[1], m[2], m[3]);
+	});
 
         fullData += line + "\n";
     }
