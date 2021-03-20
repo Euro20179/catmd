@@ -1,3 +1,3 @@
-clang++ catmd.cpp -o catmd
+clang++ $1 catmd.cpp -o catmd
 chmod 755 catmd
 sudo cp catmd /usr/local/bin/catmd
