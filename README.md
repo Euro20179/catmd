@@ -14,5 +14,5 @@ try it on this README and see how it works
 ```sh
 git clone https://github.com/euro20179/catmd
 cd catmd
-./install
+./install (any and all arguments get passed to clang++)
 ```
