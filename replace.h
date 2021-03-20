@@ -3,7 +3,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-std::string strikethrough(std::string fullFind, std::string text){
+std::string strikethrough(std::string fullFind, std::string strikethroughType, std::string text){
     return "\033[9m" + text + "\033[0m";
 }
 

@@ -1,5 +1,4 @@
-#include <cstdlib>
-#include <iostream>
+#include <stdio.h>
 #include <string>
 #include <regex>
 #include <fstream>
@@ -72,7 +71,7 @@ int main(int argc, const char *argv[])
 
     std::ifstream file (fileName);
     if(!file.is_open()){
-	std::cout << "\033[31mError: invalid file name\033[0m" << std::endl;
+	printf("%s\n", "\033[31mError: invalid file name\033[0m"); 
 	return 1;
     }
 
@@ -95,7 +94,7 @@ int main(int argc, const char *argv[])
     std::regex hrRe("(?:^-{3,}$|<hr ?/?>)");
     std::regex linkRe("([A-Za-z]+)://([^'\" ]+)");
     std::regex htmlRe("<([^ \\s]*)(.*)>([^]*?)</\\1>");
-    std::regex strikethroughRe("(?:~~|<(?:del|s).*?>)(.*)(?:~~|</(?:del|s)>)");
+    std::regex strikethroughRe("(~~|<(?:del|s).*?>)(.*)(?:~~|</(?:del|s)>)");
     while(std::getline(file, line)){
         //code
         line = std::regex_replace(line, codeBlockStartRe, [&](const std::smatch& m){
@@ -170,7 +169,7 @@ int main(int argc, const char *argv[])
 	
         //strikethrough
         line = std::regex_replace(line, strikethroughRe, [](const std::smatch& m){
-            return strikethrough(m[0], m[1]);
+            return strikethrough(m[0], m[1], m[2]);
         });
 
 	//html
@@ -180,7 +179,7 @@ int main(int argc, const char *argv[])
 
         fullData += line + "\n";
     }
-    std::cout << fullData << std::endl;
+    printf("%s\n", fullData.c_str());
 
     return 0;
 }

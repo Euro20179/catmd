@@ -14,7 +14,5 @@ try it on this README and see how it works
 ```sh
 git clone https://github.com/euro20179/catmd
 cd catmd
-clang++ catmd.cpp -o catmd
-chmod +x catmd
-sudo sudo cp catmd /usr/local/bin
+./install
 ```
