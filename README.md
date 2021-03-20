@@ -14,7 +14,7 @@ try it on this README and see how it works
 ```sh
 git clone https://github.com/euro20179/catmd
 cd catmd
-g++ catmd.cpp -o catmd
+clang++ catmd.cpp -o catmd
 chmod +x catmd
-sudo cp catmd /usr/local/bin
+sudo sudo cp catmd /usr/local/bin
 ```

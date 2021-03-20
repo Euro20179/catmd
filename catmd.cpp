@@ -1,4 +1,3 @@
-// clang++ -std=c++11 -stdlib=libc++ -o test test.cpp
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -86,6 +85,7 @@ int main(int argc, const char *argv[])
     std::regex checkedCheckboxRe("(^\\s*)\\* \\[x\\] (.*)");
     std::regex codeBlockStartRe("```(.*)$");
     std::regex inlineCodeRe("`(.*?)`");
+    std::regex tabbedRe("^(\\s{4,})(.*)$");
     std::regex bulletPointRe("(^\\s*)(\\*|\\+|-) (.*)");
     std::regex boldRe("(\\*|_){2}(.+?)\\1{2}");
     std::regex italicRe("(\\*|_)([^*\n]+)\\1");
@@ -115,6 +115,12 @@ int main(int argc, const char *argv[])
         line = std::regex_replace(line, inlineCodeRe, [](const std::smatch& m){
             return inlineCode(m[0], m[1]);
         });
+
+	//tabbed
+	line = std::regex_replace(line, tabbedRe, [](const std::smatch& m){
+	    return tabbed(m[0], m[1], m[2]);
+	});
+
         //checklists
         //empty
         line = std::regex_replace(line, emptyCheckboxRe, [](const std::smatch& m){

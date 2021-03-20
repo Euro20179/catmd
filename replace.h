@@ -28,6 +28,10 @@ std::string inlineCode(std::string fullFind, std::string text){
     return "\033[2m" + text + "\033[0m";
 }
 
+std::string tabbed(std::string fullFind, std::string whitespace, std::string text){
+    return whitespace + "\033[2m" + text + "\033[0m";
+}
+
 std::string bulletPoint(std::string fullFind, std::string whitespace, std::string bulletType, std::string text){
     return whitespace + bulletType + " " + text;
 }
