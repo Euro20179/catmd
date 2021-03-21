@@ -96,6 +96,7 @@ int main(int argc, const char *argv[])
     std::regex htmlRe("<([^ \\s]*)(.*)>([^]*?)</\\1>");
     std::regex strikethroughRe("(~~|<(?:del|s).*?>)(.*)(?:~~|</(?:del|s)>)");
     std::regex mentionRe("@([^\\s]*)");
+    std::regex brRe("<br ?/?>");
     while(std::getline(file, line)){
         //code
         line = std::regex_replace(line, codeBlockStartRe, [&](const std::smatch& m){
@@ -168,6 +169,10 @@ int main(int argc, const char *argv[])
             return hr(m[0]);
         });
 	
+	line = std::regex_replace(line, brRe, [](const std::smatch& m){
+	    return br(m[0]);    
+	});
+
         //strikethrough
         line = std::regex_replace(line, strikethroughRe, [](const std::smatch& m){
             return strikethrough(m[0], m[1], m[2]);

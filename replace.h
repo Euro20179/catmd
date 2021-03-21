@@ -66,6 +66,10 @@ std::string hr(std::string fullFind){
     return "\033[9m" + _hr + "\033[0m"; 
 }
 
+std::string br(std::string fullFind){
+    return "\n";
+}
+
 std::string link(std::string fullFind, std::string protocol, std::string url){
     return "\033[34m" + fullFind + "\033[39m";
 }
