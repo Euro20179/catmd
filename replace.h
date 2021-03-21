@@ -73,3 +73,7 @@ std::string link(std::string fullFind, std::string protocol, std::string url){
 std::string html(std::string fullFind, std::string element, std::string elementAttrs, std::string innerText){
     return "<\033[35m" + element + "\033[2;36m" + elementAttrs + "\033[0m>" + innerText + "</\033[35m" + element + "\033[39m>";
 }
+
+std::string mention(std::string fullFind, std::string username){
+    return "\033[1m@" + username + "\033[0m";
+}
