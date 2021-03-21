@@ -179,7 +179,7 @@ int main(int argc, const char *argv[])
 
         fullData += line + "\n";
     }
-    printf("%s\n", fullData.c_str());
+    printf("%s", fullData.c_str());
 
     return 0;
 }
